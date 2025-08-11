@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment</title>
+</head>
+<style>
+     table {
+            border-collapse: collapse;
+            width: 50%;
+            margin-top: 20px;
+            margin-left: 0%;
+           
+        }
+        th,
+        td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+
+        }
+        th {
+            background-color: lightgray;
+        }
+        td:hover{
+            background-color: aquamarine;
+        }
+        th:hover{
+          background-color: aqua;
+        }
+</style>
+<body>
+    <div style="text-align: center ; background-color:aqua ;">
+    <h1>Welcome to <span style="color: red;">My Webiste</span></h1>
+    <h2>Advanced HTML, CSS and JS EXample</h2>
+    </div>
+    <div style="border: 1px solid grey;">
+    <p>Click me to change my color ! This is a <b>more challenging</b> HTML page for students. Famous quote : "Learning never exhausts the mind." Code example: console.log("Hello World")</p>
+    <p>"The best way to predict the future is to create it ." -- Abraham Lincoln</p>
+    <img src="data:image/png;base64,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" alt="Dummy Image">
+    </div>
+    <br>
+    <div style="border: 1px solid grey; text-align: left;"  >
+        <h1>Student Data Table</h1>
+     <table id="Student table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Website</th>
+            </tr>
+        </thead>
+        <tbody id="FetchAPI"></tbody>
+        </table>
+        </div>
+        <br>
+<script>
+     const userList = document.getElementById("FetchAPI");
+     const table = document.getElementsByTagName("table")[0];
+     const fetchData = async () => {
+    const resp = await fetch("https://jsonplaceholder.typicode.com/users");
+
+    if (resp.ok) {
+      const data = await resp.json();
+      data.forEach((el) => {
+        let row = document.createElement("tr");
+
+        let cell1 = document.createElement("td");
+        cell1.textContent = el.name;
+
+        let cell2 = document.createElement("td");
+        cell2.textContent = el.phone;
+
+        let cell3 = document.createElement("td");
+        cell3.textContent = el.website;
+
+        row.appendChild(cell1);
+        row.appendChild(cell2);
+        row.appendChild(cell3);
+        
+
+        userList.appendChild(row);
+      });
+    }
+  };
+  fetchData();
+</script>
+<div style="text-align: left; border: 1px solid grey;">
+    <h1>Top Skills</h1>
+    <ul>
+        <li>HTML
+        <ul style="list-style-type: circle;">
+          <li>Tags</li> 
+          <li>Attributes</li>
+          <li>Forms</li> 
+
+        </ul>
+        </li>
+    </ul>
+    <ul>
+        <li>CSS
+        <ul style="list-style-type: circle;">
+          <li>Selectors</li> 
+          <li>Box Model</li>
+          <li>Positioning</li> 
+
+        </ul>
+        </li>
+    </ul>
+    <ul>
+        <li>JavaScript
+        <ul style="list-style-type: circle;">
+          <li>DOM</li> 
+          <li>Events</li>
+          <li>Functions</li> 
+
+        </ul>
+        </li>
+    </ul>
+    <ul id="skill"></ul>
+    <br>
+    <input type="text" id="in" placeholder=" Enter New Skill"/>
+    <button type="submit">Add Skill</button>
+   
+    <script>
+        const input = document.getElementById("in");
+        const btn = document.getElementsByTagName("button")[0];
+        const skill = document.getElementById("skill");
+
+        btn[0].addEventListener("click", ()=>{
+            console.log(input.value);
+          let li = document.createElement("li");
+          document.getElementById("skill").appendChild(li);
+          li.textContent=input.value;
+            
+        });
+    </script>
+</div>
+<br>
+<div style="text-align: left; border: 1px solid grey;">
+    <h1>Contact Form</h1>
+    <form >
+      <label for="name">Name:</label>
+      <input type="text" id="name">
+      <br><br>
+      <label for="email">Email:</label>
+      <input type="email" id="email" required >
+      <br><br>
+      <input type="submit" value="Submit">
+    </form>
+</div>
+<br>
+<div style="text-align: left; border: 1px solid grey;">
+  <h2>Fun Zone</h2>
+  <br>
+  <button>Change Background Color</button><br><br>
+  <script>
+   const btn2 = document.getElementsByTagName("button")[1];
+   btn2.addEventListener("click", ()=>{
+          let colors = ["blue", "pink","purple", "aqua" ,"white"];
+          let random = Math.floor(Math.random() * colors.length);
+
+
+           document.body.style.backgroundColor = colors[random];            
+        });
+   </script>
+</div>
+</body>
+</html>
