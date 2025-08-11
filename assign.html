@@ -170,20 +170,20 @@
     .white-bg { background-color: white; }
 </style>
 
+
+
 <script>
     const btn1 = document.getElementsByTagName("button")[1];
     const classes = ["blue-bg", "pink-bg", "purple-bg", "aqua-bg", "white-bg"];
     let currentIndex = 0;
 
     btn1.addEventListener("click", () => {
-        // Remove all classes first
-        document.body.classList.remove(...classes);
+        document.body.classList.toggle(classes[currentIndex]);
 
-        // Add next color class
-        document.body.classList.add(classes[currentIndex]);
-
-        // Move to next index (wrap around at the end)
+       
         currentIndex = (currentIndex + 1) % classes.length;
+
+        document.body.classList.toggle(classes[currentIndex]);
     });
 </script>
 
