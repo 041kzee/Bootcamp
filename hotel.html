@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>HorecaHub — Waste & Compliance (Demo)</title>
+  <style>
+    :root{--bg:#f6f8fb;--card:#ffffff;--accent:#2b7cff;--muted:#6b7280;}
+    body{font-family:Inter,system-ui,Arial,sans-serif;background:var(--bg);margin:0;padding:24px;color:#111;}
+    .app{max-width:980px;margin:0 auto;display:grid;grid-template-columns:1fr 360px;gap:18px;}
+    header{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+    h1{font-size:18px;margin:0;}
+    .card{background:var(--card);border-radius:10px;padding:14px;box-shadow:0 6px 18px rgba(12,20,40,0.06);}
+    form{display:flex;flex-direction:column;gap:8px;}
+    label{font-size:13px;color:var(--muted);}
+    input[type="text"],select,input[type="number"]{padding:8px;border:1px solid #e6e9ef;border-radius:8px;}
+    button{background:var(--accent);color:#fff;border:none;padding:10px;border-radius:8px;cursor:pointer;}
+    .small{font-size:13px;color:var(--muted);}
+    .preview{max-height:80px;border-radius:6px;margin-top:6px;object-fit:cover;}
+    .checklist{display:flex;flex-direction:column;gap:8px;}
+    .chk{display:flex;align-items:center;gap:10px;padding:8px;border-radius:8px;background:#fbfcfe;}
+    .list{max-height:260px;overflow:auto;display:flex;flex-direction:column;gap:8px;padding-top:8px;}
+    .entry{display:flex;gap:10px;align-items:center;border-left:4px solid #eef3ff;padding:8px;border-radius:6px;background:#fff;}
+    .badge{font-size:12px;color:var(--muted);padding:4px 8px;border-radius:999px;background:#f0f4ff;}
+    .summary{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px;}
+    @media(max-width:900px){.app{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>HorecaHub — Waste Tracker & Compliance (Demo)</h1>
+      <div class="small">Local demo • no backend</div>
+    </header>
+
+    <!-- Left column: staff forms + logs -->
+    <main class="card">
+      <section>
+        <h3 style="margin:0 0 8px 0">Quick Waste Log</h3>
+        <form id="wasteForm" onsubmit="event.preventDefault(); addWaste();">
+          <label>Type
+            <select id="wasteType">
+              <option value="spoilage">Spoilage</option>
+              <option value="expired">Expired</option>
+              <option value="overcooked">Overcooked</option>
+              <option value="overportion">Over-portioning</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+
+          <label>Item / Dish
+            <input id="wasteItem" type="text" placeholder="e.g., Romaine lettuce / Chicken biryani" required />
+          </label>
+
+          <label>Quantity (kg)
+            <input id="wasteQty" type="number" step="0.01" min="0" placeholder="0.5" required/>
+          </label>
+
+          <label>Photo (optional)
+            <input id="wastePhoto" type="file" accept="image/*" />
+            <img id="wastePreview" class="preview" style="display:none" alt="preview"/>
+          </label>
+
+          <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
+            <small class="small">Logged items appear below</small>
+            <button type="submit">Log Waste</button>
+          </div>
+        </form>
+
+        <div class="list" id="wasteList" style="margin-top:12px;"></div>
+      </section>
+    </main>
+
+    <!-- Right column: checklist + summary -->
+    <aside>
+      <div class="card" style="margin-bottom:12px;">
+        <h3 style="margin:0 0 8px 0">Daily Hygiene Checklist</h3>
+        <div id="checklist" class="checklist">
+          <!-- checklist items injected here -->
+        </div>
+        <div style="margin-top:8px;display:flex;justify-content:flex-end">
+          <button onclick="resetChecklist()">Reset Day</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 8px 0">Manager Summary</h3>
+        <div class="summary">
+          <div>
+            <div class="small">Total Waste Entries</div>
+            <div id="totalEntries" style="font-weight:600;font-size:20px">0</div>
+          </div>
+          <div>
+            <div class="small">Total Waste (kg)</div>
+            <div id="totalKg" style="font-weight:600;font-size:20px">0.00</div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="small">Most wasted items</div>
+          <div id="topItems" style="margin-top:8px"></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    // Minimal local demo storage & UI logic
+    const DEFAULT_CHECKS = [
+      "Check fridge temperature",
+      "Clean prep surfaces",
+      "Sanitize cutting boards",
+      "Dispose expired items",
+      "Wash hands & gloves"
+    ];
+
+    const $ = id => document.getElementById(id);
+
+    // initialize
+    function init() {
+      if (!localStorage.getItem('horecawaste')) localStorage.setItem('horecawaste', JSON.stringify([]));
+      if (!localStorage.getItem('horecachecks')) {
+        const todayKey = getTodayKey();
+        localStorage.setItem('horecachecks', JSON.stringify({ [todayKey]: DEFAULT_CHECKS.map(t => ({text:t,done:false,photo:null})) }));
+      }
+      $('wastePhoto').addEventListener('change', previewWasteImage);
+      renderWasteList();
+      renderChecklist();
+      renderSummary();
+    }
+
+    function getTodayKey(){ return new Date().toISOString().slice(0,10); }
+
+    // Waste form actions
+    function previewWasteImage(e){
+      const file = e.target.files[0];
+      if (!file) { $('wastePreview').style.display='none'; return; }
+      const reader = new FileReader();
+      reader.onload = () => {
+        $('wastePreview').src = reader.result;
+        $('wastePreview').style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function fileToDataUrl(input){
+      const f = input.files[0];
+      if (!f) return null;
+      return await new Promise(res => {
+        const r = new FileReader();
+        r.onload = ()=>res(r.result);
+        r.readAsDataURL(f);
+      });
+    }
+
+    async function addWaste(){
+      const type = $('wasteType').value;
+      const item = $('wasteItem').value.trim();
+      const qty = parseFloat($('wasteQty').value) || 0;
+      const photo = await fileToDataUrl($('wastePhoto'));
+      const entry = {id:Date.now(), type, item, qty, photo, ts:new Date().toISOString()};
+      const arr = JSON.parse(localStorage.getItem('horecawaste')||'[]');
+      arr.unshift(entry);
+      localStorage.setItem('horecawaste', JSON.stringify(arr));
+      $('wasteForm').reset();
+      $('wastePreview').style.display='none';
+      renderWasteList();
+      renderSummary();
+    }
+
+    function renderWasteList(){
+      const arr = JSON.parse(localStorage.getItem('horecawaste')||'[]');
+      const container = $('wasteList'); container.innerHTML = '';
+      if (!arr.length) { container.innerHTML = '<div class="small">No logs yet.</div>'; return; }
+      arr.slice(0,20).forEach(e => {
+        const div = document.createElement('div'); div.className='entry';
+        div.innerHTML = `
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <strong>${escapeHtml(e.item)}</strong>
+              <span class="badge">${escapeHtml(e.type)}</span>
+            </div>
+            <div class="small">${new Date(e.ts).toLocaleString()} • ${e.qty.toFixed(2)} kg</div>
+          </div>
+          ${e.photo ? `<img src="${e.photo}" style="width:78px;height:56px;border-radius:6px;object-fit:cover">` : ''}
+          <button style="background:#eee;color:#333;border-radius:8px;padding:6px 8px;border:none" onclick="removeEntry(${e.id})">X</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function removeEntry(id){
+      let arr = JSON.parse(localStorage.getItem('horecawaste')||'[]');
+      arr = arr.filter(x=>x.id!==id);
+      localStorage.setItem('horecawaste', JSON.stringify(arr));
+      renderWasteList(); renderSummary();
+    }
+
+    // Checklist
+    function renderChecklist(){
+      const data = JSON.parse(localStorage.getItem('horecachecks')||'{}');
+      const today = getTodayKey();
+      if (!data[today]) {
+        // copy default
+        data[today] = DEFAULT_CHECKS.map(t => ({text:t,done:false,photo:null}));
+        localStorage.setItem('horecachecks', JSON.stringify(data));
+      }
+      const list = $('checklist'); list.innerHTML = '';
+      data[today].forEach((c, i) => {
+        const div = document.createElement('div'); div.className='chk';
+        div.innerHTML = `
+          <input type="checkbox" ${c.done ? 'checked' : ''} onchange="toggleCheck(${i})" />
+          <div style="flex:1">
+            <div style="font-weight:600">${escapeHtml(c.text)}</div>
+            <div class="small">${c.photo ? 'Photo attached' : ''}</div>
+          </div>
+          <input type="file" accept="image/*" onchange="attachCheckPhoto(event, ${i})" />
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function toggleCheck(i){
+      const data = JSON.parse(localStorage.getItem('horecachecks')||'{}');
+      const today = getTodayKey();
+      data[today][i].done = !data[today][i].done;
+      localStorage.setItem('horecachecks', JSON.stringify(data));
+      renderChecklist();
+    }
+
+    function attachCheckPhoto(ev, i){
+      const file = ev.target.files[0]; if(!file) return;
+      const reader = new FileReader(); reader.onload = ()=>{
+        const data = JSON.parse(localStorage.getItem('horecachecks')||'{}');
+        const today = getTodayKey();
+        data[today][i].photo = reader.result;
+        data[today][i].done = true;
+        localStorage.setItem('horecachecks', JSON.stringify(data));
+        renderChecklist();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function resetChecklist(){
+      if (!confirm('Reset today checklist?')) return;
+      const data = JSON.parse(localStorage.getItem('horecachecks')||'{}');
+      const today = getTodayKey();
+      data[today] = DEFAULT_CHECKS.map(t => ({text:t,done:false,photo:null}));
+      localStorage.setItem('horecachecks', JSON.stringify(data));
+      renderChecklist();
+    }
+
+    // Summary
+    function renderSummary(){
+      const arr = JSON.parse(localStorage.getItem('horecawaste')||'[]');
+      const total = arr.length;
+      const kg = arr.reduce((s,e)=>s+ (parseFloat(e.qty)||0), 0);
+      $('totalEntries').textContent = total;
+      $('totalKg').textContent = kg.toFixed(2);
+
+      // top items
+      const freq = {};
+      arr.forEach(a => { freq[a.item] = (freq[a.item]||0) + a.qty; });
+      const tops = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,3);
+      const el = $('topItems'); el.innerHTML = '';
+      if (!tops.length) el.innerHTML = '<div class="small">No data yet.</div>';
+      tops.forEach(([name, q])=>{
+        const d = document.createElement('div'); d.className='small';
+        d.textContent = `${name} — ${q.toFixed(2)} kg`;
+        el.appendChild(d);
+      });
+    }
+
+    // utils
+    function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+
+    // init on load
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

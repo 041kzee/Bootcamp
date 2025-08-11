@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width, initial-scale=1.0">
+    <title>Document</title>
+    
+    <style>
+        body{
+            text-align: center;
+        }
+        table {
+            border-collapse: collapse;
+            width: 50%;
+            margin-top: 20px;
+            margin: auto;
+
+        }
+        th,
+        td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: lightgray;
+        }
+        .hide{
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+   <h1>Fetching API Data</h1>
+ <!-- <ul id="fetchList"></ul> --> 
+      <table class ="hide">
+        <thead>
+            <tr>
+                <th>SerialNo</th>
+                <th>Name</th>
+                <th>Emailid</th>
+                <th>Username</th>
+            </tr>
+        </thead>
+        <tbody id="FetchTable"></tbody>
+        </table>
+        <button>Fetch Data</button>
+
+   <!--add the id so that u can add the api data into that particular tag -->
+   <script>
+  const userList = document.getElementById("FetchTable");
+  const btn = document.getElementsByTagName("button")[0];
+  const table = document.getElementsByTagName("table")[0]; // store table reference
+
+  let isDataLoaded = false;
+  const fetchData = async () => {
+    const resp = await fetch("https://jsonplaceholder.typicode.com/users");
+    if (resp.ok) {
+      const data = await resp.json();
+      data.forEach((el) => {
+        let row = document.createElement("tr");
+
+        let cell1 = document.createElement("td");
+        cell1.textContent = el.id;
+
+        let cell2 = document.createElement("td");
+        cell2.textContent = el.name;
+
+        let cell3 = document.createElement("td");
+        cell3.textContent = el.email;
+
+        let cell4 = document.createElement("td");
+        cell4.textContent = el.username;
+
+        row.appendChild(cell1);
+        row.appendChild(cell2);
+        row.appendChild(cell3);
+        row.appendChild(cell4);
+
+        userList.appendChild(row);
+      });
+    }
+  };
+btn.addEventListener("click", async () => {
+    if (table.classList.contains("hide")) {
+      // Show table
+      if (!isDataLoaded) {
+        await fetchData();
+        isDataLoaded = true;
+
+      }
+      table.classList.remove("hide");
+      btn.textContent = "Hide Data";
+    } else {
+      // Hide table
+      table.classList.add("hide");
+      btn.textContent = "Show Data";
+    }
+  });
+</script>
+
+</body>
+</html>

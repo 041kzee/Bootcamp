@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" rcontent="width=device-width, initial-scale=1.0">
+    <title>CATALOG</title>
+</head>
+<style>
+        h1{
+            color: rgb(202, 51, 76);
+           
+        }
+        body{
+            text-align: center;
+        }
+        table {
+            border-collapse: collapse;
+            width: 50%;
+            margin-top: 20px;
+            margin: auto;
+            background-color: beige;
+
+        }
+        th,
+        td {
+            border: 1px solid rgb(196, 109, 165);
+            padding: 8px;
+            text-align: left;
+        }
+        button{
+          color: purple;
+          background-color: beige;
+           padding: 8px;
+        }
+        th {
+            color:rgb(202, 51, 76) ;
+            background-color: rgb(241, 209, 236);
+        }
+        .hide{
+            display: none;
+        }
+        img {
+             width: 80px;
+            height: 80px;
+            object-fit: cover;
+}
+    </style>
+<body>
+     <h1>Catalog for Shopping</h1>
+        <table class ="hide">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Thumbnail</th>
+            </tr>
+        </thead>
+        <tbody id="FetchTable"></tbody>
+        </table>
+        <button>Lets Shop</button>
+
+     </table>
+     <script>
+        const userList = document.getElementById("FetchTable");
+  const btn = document.getElementsByTagName("button")[0];
+  const table = document.getElementsByTagName("table")[0];
+
+  let isDataLoaded = false;
+  const fetchData = async () => {
+    const resp = await fetch("https://dummyjson.com/products?limit=10");
+    if (resp.ok) {
+      const data = await resp.json();
+      data.products.forEach((el) => {
+        let row = document.createElement("tr");
+
+        let cell1 = document.createElement("td");
+        cell1.textContent = el.id;
+
+        let cell2 = document.createElement("td");
+        cell2.textContent = el.title;
+
+        let cell3 = document.createElement("td");
+        cell3.textContent = el.description;
+
+        let cell4 = document.createElement("td");
+        cell4.textContent =  "$" + el.price;
+
+        let cell5 = document.createElement("td");
+        cell5.textContent = el.stock;
+        cell5.style.color = "red";
+
+        let cell6 = document.createElement("td");
+      let imageofprod = document.createElement("img");
+      imageofprod.src = el.thumbnail;
+      cell6.appendChild(imageofprod);
+
+        row.appendChild(cell1);
+        row.appendChild(cell2);
+        row.appendChild(cell3);
+        row.appendChild(cell4);
+        row.appendChild(cell5);
+        row.appendChild(cell6);
+
+
+        userList.appendChild(row);
+      });
+    }
+  };
+btn.addEventListener("click", async () => {
+    if (table.classList.contains("hide")) {
+      // Show table
+      if (!isDataLoaded) {
+        await fetchData();
+        isDataLoaded = true;
+
+      }
+      table.classList.remove("hide");
+      btn.textContent = "No Money bro :((";
+    } else {
+      // Hide table
+      table.classList.add("hide");
+      btn.textContent = "Its fine ILL ASK MAMMA";
+    }
+  });
+     </script>
+</body>
+</html>

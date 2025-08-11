@@ -1,0 +1,54 @@
+@media(max-width : 576px) 
+{
+    header{
+    margin: 100px 100px;
+    padding: 40px 20px;
+    }
+    .name {
+        font-size :30px;
+    }
+    button{
+        font-size: 20px;
+    }
+}
+@media (min-width: 577px) and (max-width : 768px)
+{
+     header{
+    margin: 50px 50px;
+    padding: 30px 30px;
+    }
+    .name {
+        font-size: 15px;
+    }
+    button{
+        font-size: 9px;
+    }
+}
+/*small screen*/
+@media (min-width: 769px) and (max-width : 991px)
+{
+    header{
+    margin: 100px 100px;
+    padding: 40px 20px;
+    }
+    .name {
+        font-size :20px;
+    }
+    button{
+        font-size: 7px;
+    }
+}
+/*large*/
+@media (min-width: 1200px)
+{
+    header{
+    margin: 50px 50px;
+    padding: 10px 10px;
+    }
+    .name {
+        font-size :18px;
+    }
+    button{
+        font-size: 4px;
+    }
+}
